@@ -1,0 +1,61 @@
+body {
+  width: 350px;
+  padding: 15px;
+}
+
+.form-switch .form-check-input {
+  width: 3em;
+  height: 1.5em;
+}
+
+#sessionList .btn-danger {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.time-inputs {
+  display: flex;
+  gap: 10px;
+}
+
+.time-inputs input {
+  flex: 1;
+}
+
+#addSession {
+  width: 100%;
+}
+
+/* Enhanced styling for day checkboxes */
+.day-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.form-check-label {
+  margin-left: 0.5rem;
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+}
+
+.form-check input {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+/* Style for the section title */
+.section-title {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+/* Button spacing */
+#saveButton {
+  margin-top: 20px;
+}
