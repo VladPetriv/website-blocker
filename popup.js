@@ -115,7 +115,9 @@ function renderSessions(sessions) {
   });
 
   document.querySelectorAll(".remove-session").forEach((button) => {
-    button.addEventListener("click", () => removeSession(sessions, parseInt(this.getAttribute("data-index"))));
+    button.addEventListener("click", function () {
+      removeSession(sessions, parseInt(this.getAttribute("data-index")))
+    });
   });
 }
 
