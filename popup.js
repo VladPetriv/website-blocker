@@ -1,3 +1,6 @@
+import { motivationalQuotes } from "./quotes.js";
+const isWithInSessionTime = window.isWithInSessionTime
+
 const blockedAppsTextarea = document.getElementById("blockedApps");
 const sessionStartInput = document.getElementById("sessionStart");
 const sessionEndInput = document.getElementById("sessionEnd");
@@ -21,22 +24,29 @@ function init() {
   const result = {};
 
   chrome.storage.sync.get(["blockedApps", "sessions", "daySettings"], (res) => {
+    const initSessions = structuredClone(res.sessions) || [];
+
     result.blockedApps = (res.blockedApps || []).join("\n");
     result.sessions = res.sessions || [];
     result.daySettings = res.daySettings || [];
 
     updatePopUpForm(result.blockedApps, result.sessions, result.daySettings);
 
-    addSessionButton.addEventListener("click", () =>
-      addSession(result.sessions),
-    );
-    saveButton.addEventListener("click", () =>
+    addSessionButton.addEventListener("click", () => {
+      addSession(result.sessions)
+    });
+
+    saveButton.addEventListener("click", () => {
+      if (!hasPermission(defaultDaysSettings, initSessions)) {
+        return
+      }
+
       updateAppData({
         blockedApps: blockedAppsTextarea.value,
         sessions: result.sessions,
         daySettings: getDaySettings(defaultDaysSettings),
-      }),
-    );
+      })
+    });
   });
 }
 
@@ -55,12 +65,36 @@ function updateAppData(data) {
       sessions,
       daySettings,
     });
+
     alert("Settings saved!");
   });
 }
 
+function hasPermission(currentDaysSettings, initialSessions) {
+  const now = new Date()
+
+  const currentDaySettings = currentDaysSettings[now.getDay() - 1]
+
+  if (!currentDaySettings.enabled) {
+    return true
+  }
+
+  if (isWithInSessionTime(initialSessions)) {
+    alert(`You're not allowed to change settings while in an active session.
+
+Quote: ${motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)]}`);
+
+    return false
+  }
+
+
+  return true
+}
+
+
 function updatePopUpForm(blockedApps, sessions, daySettings) {
   blockedAppsTextarea.value = blockedApps;
+
   renderSessions(sessions);
   updateDaySettings(defaultDaysSettings, daySettings);
 }
@@ -80,11 +114,8 @@ function renderSessions(sessions) {
     sessionListDiv.appendChild(sessionElement);
   });
 
-  // Add event listeners to remove buttons
   document.querySelectorAll(".remove-session").forEach((button) => {
-    button.addEventListener("click", function () {
-      removeSession(sessions, parseInt(this.getAttribute("data-index")));
-    });
+    button.addEventListener("click", () => removeSession(sessions, parseInt(this.getAttribute("data-index"))));
   });
 }
 
