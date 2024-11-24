@@ -70,23 +70,27 @@ function updateAppData(data) {
   });
 }
 
-function hasPermission(currentDaysSettings, initialSessions) {
-  const now = new Date()
 
-  const currentDaySettings = currentDaysSettings[now.getDay() - 1]
+const SUNDAY_INDEX = 6
 
-  if (!currentDaySettings.enabled) {
+function hasPermission(weeklySchedule, ongoingSessions) {
+  const currentDate = new Date()
+  const dayOfWeek = currentDate.getDay()
+  const scheduleIndex = dayOfWeek === 0 ? SUNDAY_INDEX : dayOfWeek - 1
+
+  const todaysSchedule = weeklySchedule[scheduleIndex]
+
+  if (!todaysSchedule.enabled) {
     return true
   }
 
-  if (isWithInSessionTime(initialSessions)) {
+  if (isWithInSessionTime(ongoingSessions)) {
     alert(`You're not allowed to change settings while in an active session.
 
 Quote: ${motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)]}`);
 
     return false
   }
-
 
   return true
 }
