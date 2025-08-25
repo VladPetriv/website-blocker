@@ -33,6 +33,7 @@ function renderPage() {
       renderSites(storageResult.sites);
       updateBlockedCount(storageResult.sites.length);
       renderSessions(storageResult.sessions);
+      renderSelectedDays(storageResult.daySettings);
 
       // Add event listeners
       addSiteBtn.addEventListener("click", () => {
@@ -46,6 +47,8 @@ function renderPage() {
       });
 
       saveButton.addEventListener("click", () => {
+        const selectedDays = getSelectedDays();
+        storageResult.daySettings = selectedDays;
         saveSettings(storageResult);
       });
     },
@@ -146,6 +149,27 @@ function renderSessions(sessions) {
 function removeSession(sessions, sessionIndex) {
   sessions.splice(sessionIndex, 1);
   renderSessions(sessions);
+}
+
+function renderSelectedDays(dayObject) {
+  for (const [id, value] of Object.entries(dayObject)) {
+    const checkbox = document.getElementById(id);
+    if (checkbox) {
+      checkbox.checked = !!value;
+    }
+  }
+}
+
+function getSelectedDays() {
+  const days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+  const result = {};
+
+  days.forEach((id) => {
+    const checkbox = document.getElementById(id);
+    result[id] = checkbox ? checkbox.checked : false;
+  });
+
+  return result;
 }
 
 function saveSettings(storageResult) {
