@@ -1,173 +1,203 @@
-import { motivationalQuotes } from "./quotes.js";
-const isWithInSessionTime = window.isWithInSessionTime
+const SITES_STORAGE_KEY = "sites";
+const SESSIONS_STORAGE_KEY = "sessions";
+const DAY_SETTINGS_STORAGE_KEY = "daySettings";
 
-const blockedAppsTextarea = document.getElementById("blockedApps");
-const sessionStartInput = document.getElementById("sessionStart");
-const sessionEndInput = document.getElementById("sessionEnd");
-const addSessionButton = document.getElementById("addSession");
-const sessionListDiv = document.getElementById("sessionList");
+const siteInput = document.getElementById("siteInput");
+const addSiteBtn = document.getElementById("addSite");
+const siteList = document.getElementById("siteList");
+const startTimeInput = document.getElementById("startTime");
+const endTimeInput = document.getElementById("endTime");
+const addSessionBtn = document.getElementById("addSession");
+const sessionList = document.getElementById("sessionList");
 const saveButton = document.getElementById("saveButton");
+const statusDot = document.getElementById("statusDot");
+const statusText = document.getElementById("statusText");
+const blockedCountEl = document.getElementById("blockedCount");
 
-const defaultDaysSettings = [
-  { day: "Monday", enabled: false },
-  { day: "Tuesday", enabled: false },
-  { day: "Wednesday", enabled: false },
-  { day: "Thursday", enabled: false },
-  { day: "Friday", enabled: false },
-  { day: "Saturday", enabled: false },
-  { day: "Sunday", enabled: false },
-];
+document.addEventListener("DOMContentLoaded", () => renderPage());
 
-document.addEventListener("DOMContentLoaded", () => init());
+function renderPage() {
+  // Get application settings from extension storage
+  chrome.storage.sync.get(
+    [SITES_STORAGE_KEY, SESSIONS_STORAGE_KEY, DAY_SETTINGS_STORAGE_KEY],
+    (res) => {
+      const storageResult = {};
 
-function init() {
-  const result = {};
+      const initialSessions = structuredClone(res[SESSIONS_STORAGE_KEY]) || [];
+      storageResult.sites = res[SITES_STORAGE_KEY] || [];
+      storageResult.sessions = res[SESSIONS_STORAGE_KEY] || [];
+      storageResult.initialSessions = initialSessions;
+      storageResult.daySettings = res[DAY_SETTINGS_STORAGE_KEY] || [];
 
-  chrome.storage.sync.get(["blockedApps", "sessions", "daySettings"], (res) => {
-    const initSessions = structuredClone(res.sessions) || [];
+      // Render page content
+      renderSites(storageResult.sites);
+      updateBlockedCount(storageResult.sites.length);
+      renderSessions(storageResult.sessions);
+      renderSelectedDays(storageResult.daySettings);
 
-    result.blockedApps = (res.blockedApps || []).join("\n");
-    result.sessions = res.sessions || [];
-    result.daySettings = res.daySettings || [];
+      // Add event listeners
+      addSiteBtn.addEventListener("click", () => {
+        addSite(storageResult.sites);
+      });
+      siteInput.addEventListener("keypress", (e) =>
+        e.key === "Enter" ? addSite(storageResult.sites) : null,
+      );
+      addSessionBtn.addEventListener("click", () => {
+        addSession(storageResult.sessions);
+      });
 
-    updatePopUpForm(result.blockedApps, result.sessions, result.daySettings);
-
-    addSessionButton.addEventListener("click", () => {
-      addSession(result.sessions)
-    });
-
-    saveButton.addEventListener("click", () => {
-      if (!hasPermission(defaultDaysSettings, initSessions)) {
-        return
-      }
-
-      updateAppData({
-        blockedApps: blockedAppsTextarea.value,
-        sessions: result.sessions,
-        daySettings: getDaySettings(defaultDaysSettings),
-      })
-    });
-  });
+      saveButton.addEventListener("click", () => {
+        const selectedDays = getSelectedDays();
+        storageResult.daySettings = selectedDays;
+        saveSettings(storageResult);
+      });
+    },
+  );
 }
 
-function updateAppData(data) {
-  const blockedApps = data.blockedApps
-    .split("\n")
-    .map((app) => app.trim())
-    .filter(Boolean);
-  const daySettings = data.daySettings;
-  const sessions = data.sessions;
+function addSite(sites) {
+  const site = siteInput.value.trim();
 
-  chrome.storage.sync.set({ blockedApps, sessions, daySettings }, () => {
-    chrome.runtime.sendMessage({
-      action: "updateSettings",
-      blockedApps,
-      sessions,
-      daySettings,
-    });
+  if (site && !sites.includes(site)) {
+    sites.push(site);
+    renderSites(sites);
 
-    alert("Settings saved!");
-  });
-}
+    siteInput.value = "";
+    updateBlockedCount(sites.length);
 
-
-const SUNDAY_INDEX = 6
-
-function hasPermission(weeklySchedule, ongoingSessions) {
-  const currentDate = new Date()
-  const dayOfWeek = currentDate.getDay()
-  const scheduleIndex = dayOfWeek === 0 ? SUNDAY_INDEX : dayOfWeek - 1
-
-  const todaysSchedule = weeklySchedule[scheduleIndex]
-
-  if (!todaysSchedule.enabled) {
-    return true
+    const newSiteItem = siteList.lastElementChild;
+    if (newSiteItem) {
+      newSiteItem.classList.add("fade-in");
+    }
   }
-
-  if (isWithInSessionTime(ongoingSessions)) {
-    alert(`You're not allowed to change settings while in an active session.
-
-Quote: ${motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)]}`);
-
-    return false
-  }
-
-  return true
 }
 
+function renderSites(sites) {
+  siteList.innerHTML = sites
+    .map(
+      (site, index) => `
+<div class="list-item">
+  <div class="list-item-content">
+    <span>🌐</span>
+    <span>${site}</span>
+  </div>
+  <button id="remove-btn-site" class="remove-btn" data-index="${index}">✕</button>
+</div>
+    `,
+    )
+    .join("");
 
-function updatePopUpForm(blockedApps, sessions, daySettings) {
-  blockedAppsTextarea.value = blockedApps;
-
-  renderSessions(sessions);
-  updateDaySettings(defaultDaysSettings, daySettings);
-}
-
-function renderSessions(sessions) {
-  sessionListDiv.innerHTML = "";
-
-  sessions.forEach((session, index) => {
-    const sessionElement = document.createElement("div");
-
-    sessionElement.className =
-      "d-flex justify-content-between align-items-center mb-2";
-    sessionElement.innerHTML = `
-                  <span class="me-2">${session.start} - ${session.end}</span>
-                  <button class="btn btn-danger btn-sm remove-session" data-index="${index}">Remove</button>
-              `;
-    sessionListDiv.appendChild(sessionElement);
-  });
-
-  document.querySelectorAll(".remove-session").forEach((button) => {
+  document.querySelectorAll("#remove-btn-site").forEach((button) => {
     button.addEventListener("click", function () {
-      removeSession(sessions, parseInt(this.getAttribute("data-index")))
+      removeSite(sites, this.getAttribute("data-index"));
     });
   });
+}
+
+function removeSite(sites, siteIndex) {
+  sites.splice(siteIndex, 1);
+  renderSites(sites);
+  updateBlockedCount(sites.length);
+}
+
+function updateBlockedCount(sitesLength) {
+  blockedCountEl.textContent = sitesLength;
 }
 
 function addSession(sessions) {
-  const start = sessionStartInput.value;
-  const end = sessionEndInput.value;
+  const startTime = startTimeInput.value;
+  const endTime = endTimeInput.value;
 
-  if (start && end) {
-    sessions.push({ start, end });
-    renderSessions(sessions);
-    sessionStartInput.value = "";
-    sessionEndInput.value = "";
+  if (startTime && endTime && startTime !== endTime) {
+    const session = `${startTime} - ${endTime}`;
+    if (!sessions.includes(session)) {
+      sessions.push(session);
+      renderSessions(sessions);
+      startTimeInput.value = "";
+      endTimeInput.value = "";
+
+      const newSessionItem = sessionList.lastElementChild;
+      if (newSessionItem) {
+        newSessionItem.classList.add("fade-in");
+      }
+    }
   }
 }
 
-function removeSession(sessions, index) {
-  sessions.splice(index, 1);
+function renderSessions(sessions) {
+  sessionList.innerHTML = sessions
+    .map(
+      (session, index) => `
+<div class="list-item">
+  <div class="list-item-content">
+    <span>⏰</span>
+    <span>${session}</span>
+  </div>
+  <button id="remove-btn-session" class="remove-btn" data-index="${index}">✕</button>
+</div>
+`,
+    )
+    .join("");
+
+  document.querySelectorAll("#remove-btn-session").forEach((button) => {
+    button.addEventListener("click", function () {
+      removeSession(sessions, this.getAttribute("data-index"));
+    });
+  });
+}
+
+function removeSession(sessions, sessionIndex) {
+  sessions.splice(sessionIndex, 1);
   renderSessions(sessions);
 }
-function getDaySettings(currentDaysSettings) {
-  const result = [];
 
-  for (const setting of currentDaysSettings) {
-    setting.enabled = result.push({
-      day: setting.day,
-      enabled: document.getElementById(`day${setting.day}`).checked,
-    });
+function renderSelectedDays(dayObject) {
+  for (const [id, value] of Object.entries(dayObject)) {
+    const checkbox = document.getElementById(id);
+    if (checkbox) {
+      checkbox.checked = !!value;
+    }
   }
+}
+
+function getSelectedDays() {
+  const days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+  const result = {};
+
+  days.forEach((id) => {
+    const checkbox = document.getElementById(id);
+    result[id] = checkbox ? checkbox.checked : false;
+  });
 
   return result;
 }
 
-function updateDaySettings(defaultDaySettings, updatedDaySettings) {
-  if (updatedDaySettings.length === 0) {
-    return;
-  }
+function saveSettings(storageResult) {
+  saveButton.classList.add("success");
+  saveButton.textContent = "✅ Saved!";
+  statusDot.style.backgroundColor = "#3b82f6";
+  statusText.textContent = "FocusBlock active";
 
-  for (const defaultDay of defaultDaySettings) {
-    for (const updatedDay of updatedDaySettings) {
-      if (defaultDay.day === updatedDay.day) {
-        document.getElementById("day" + defaultDay.day).checked =
-          updatedDay.enabled;
-        defaultDay.enabled = updatedDay.enabled;
+  updateSettings(storageResult);
 
-        break;
-      }
-    }
-  }
+  setTimeout(() => {
+    saveButton.textContent = "🚀 Save Settings";
+    saveButton.classList.remove("success");
+  }, 2000);
+}
+
+function updateSettings(storageResult) {
+  console.log(storageResult);
+  const sites = storageResult.sites;
+  const sessions = storageResult.sessions;
+  const daySettings = storageResult.daySettings;
+
+  chrome.storage.sync.set({ sites, sessions, daySettings }, () => {
+    chrome.runtime.sendMessage({
+      action: "updateSettings",
+      sites,
+      sessions,
+      daySettings,
+    });
+  });
 }

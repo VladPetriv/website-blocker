@@ -1,15 +1,6 @@
-const dayMap = new Map([
-  ["Monday", 1],
-  ["Tuesday", 2],
-  ["Wednesday", 3],
-  ["Thursday", 4],
-  ["Friday", 5],
-  ["Saturday", 6],
-  ["Sunday", 7],
-]);
-
 const isWithInSessionTime = (sessions) => {
-  for (const session of sessions) {
+  const parsedSessions = parseSessionsArray(sessions);
+  for (const session of parsedSessions) {
     const { hours: startSessionHour, minutes: startSessionMinute } =
       parseTimeString(session.start);
     const { hours: endSessionHour, minutes: endSessionMinute } =
@@ -43,9 +34,7 @@ const isWithInSessionTime = (sessions) => {
       const isWithinSessionMinutes =
         currentMinute >= startSessionMinute &&
         currentMinute <= endSessionMinute;
-      return isWithinSessionHours && isWithinSessionMinutes
-        ? true
-        : false;
+      return isWithinSessionHours && isWithinSessionMinutes ? true : false;
     }
 
     if (endSessionHour > startSessionHour) {
@@ -73,31 +62,35 @@ const isWithInSessionTime = (sessions) => {
 
       if (isWithinSessionHours && currentHour === startSessionHour) {
         if (startSessionHour === 0) {
-          return true
+          return true;
         }
 
         if (currentMinute < startSessionMinute) {
-          return false
+          return false;
         }
 
         if (currentMinute > startSessionMinute) {
-          return true
+          return true;
         }
       }
 
-      return true
+      return true;
     }
 
     continue;
   }
+};
+
+function parseSessionsArray(sessionsArray) {
+  return sessionsArray.map((sessionStr) => {
+    const [start, end] = sessionStr.split(" - ").map((s) => s.trim());
+    return { start, end };
+  });
 }
 
-window.isWithInSessionTime = isWithInSessionTime
-
-const parseTimeString = (timeString) => {
+function parseTimeString(timeString) {
   const [hours, minutes] = timeString.split(":").map(Number);
   return { hours, minutes };
 }
 
-
-window.parseTimeString = parseTimeString
+export { isWithInSessionTime };
