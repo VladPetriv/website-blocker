@@ -12,7 +12,8 @@
   ],
   "host_permissions": ["<all_urls>"],
   "background": {
-    "service_worker": "worker.js"
+    "service_worker": "worker.js",
+    "type": "module"
   },
   "action": {
     "default_popup": "popup.html"
