@@ -1,61 +1,118 @@
 body {
-  width: 350px;
-  padding: 15px;
+    width: 360px;
+    padding: 20px;
+    font-family: "Inter", sans-serif;
+    background: linear-gradient(135deg, #f8f9fa, #eef2f7);
 }
 
-.form-switch .form-check-input {
-  width: 3em;
-  height: 1.5em;
+/* Gradient Title */
+.gradient-text {
+    background: linear-gradient(45deg, #007bff, #00c9a7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Website list styling */
+#siteList {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+#siteList .list-group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: none;
+    border-bottom: 1px solid #eee;
+    font-size: 0.95rem;
+}
+
+#siteList .actions {
+    display: flex;
+    gap: 8px;
+}
+
+#siteList .btn {
+    padding: 2px 8px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    padding: 6px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease-in-out;
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+
+.icon-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #000;
+}
+
+.icon-btn:active {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.editSite i {
+    color: #0d6efd;
+}
+
+.removeSite i {
+    color: #dc3545;
+}
+
+/* Day pills */
+.day-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.day-pills .btn {
+    min-width: 60px;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.day-pills .btn-check:checked + .btn {
+    background: linear-gradient(45deg, #007bff, #00c9a7);
+    color: white;
+    border: none;
+    box-shadow: 0 3px 6px rgba(0, 123, 255, 0.2);
+}
+
+/* Input group styling */
+.input-group .form-control {
+    border-radius: 0 !important;
+}
+
+.input-group .input-group-text {
+    background: #f1f3f5;
+    border: none;
+    font-weight: 500;
+}
+
+/* Session List */
+#sessionList .session-item {
+    background: #fff;
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 #sessionList .btn-danger {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-
-.time-inputs {
-  display: flex;
-  gap: 10px;
-}
-
-.time-inputs input {
-  flex: 1;
-}
-
-#addSession {
-  width: 100%;
-}
-
-/* Enhanced styling for day checkboxes */
-.day-checkboxes {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.form-check-label {
-  margin-left: 0.5rem;
-}
-
-.form-check {
-  display: flex;
-  align-items: center;
-}
-
-.form-check input {
-  width: 1.5rem;
-  height: 1.5rem;
-}
-
-/* Style for the section title */
-.section-title {
-  font-size: 1.2rem;
-  margin-bottom: 10px;
-}
-
-/* Button spacing */
-#saveButton {
-  margin-top: 20px;
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-size: 0.8rem;
 }

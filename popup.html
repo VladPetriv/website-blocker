@@ -1,75 +1,170 @@
 <!doctype html>
 <html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Scheduled Application Blocker</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+        />
+        <link rel="stylesheet" href="./assets/style.css" />
+    </head>
+    <body>
+        <div class="card shadow-lg rounded-4 p-3">
+            <h2 class="text-center mb-4 fw-bold gradient-text">
+                Scheduled Blocker
+            </h2>
 
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Scheduled Application Blocker</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="./assets/style.css" />
-</head>
+            <!-- Websites Section -->
+            <div class="mb-4">
+                <label for="siteInput" class="form-label fw-semibold"
+                    >Blocked Websites:</label
+                >
+                <div class="input-group shadow-sm rounded-3 mb-3">
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="siteInput"
+                        placeholder="e.g. facebook.com"
+                    />
+                    <button class="btn btn-outline-primary" id="addSite">
+                        ➕ Add
+                    </button>
+                </div>
 
-<body>
-  <h2 class="mb-4">Scheduled Application Blocker</h2>
+                <ul
+                    id="siteList"
+                    class="list-group list-group-flush shadow-sm rounded-3"
+                ></ul>
+            </div>
 
-  <div class="mb-3">
-    <label for="blockedApps" class="form-label">Enter applications to block (one per line):</label>
-    <textarea class="form-control" id="blockedApps" rows="4"></textarea>
-  </div>
+            <!-- Day Selection -->
+            <div class="mb-4">
+                <div class="section-title fw-semibold mb-2">Select Days:</div>
+                <div class="day-pills">
+                    <input
+                        type="checkbox"
+                        class="btn-check"
+                        id="dayMonday"
+                        autocomplete="off"
+                    />
+                    <label
+                        class="btn btn-outline-primary rounded-pill"
+                        for="dayMonday"
+                        >Mon</label
+                    >
 
-  <div class="mb-3">
-    <!-- Day Selection Section -->
-    <div class="mb-3">
-      <div class="section-title">Select Days:</div>
-      <div class="day-checkboxes">
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" value="Monday" id="dayMonday" />
-          <label class="form-check-label" for="dayMonday">Monday</label>
+                    <input
+                        type="checkbox"
+                        class="btn-check"
+                        id="dayTuesday"
+                        autocomplete="off"
+                    />
+                    <label
+                        class="btn btn-outline-primary rounded-pill"
+                        for="dayTuesday"
+                        >Tue</label
+                    >
+
+                    <input
+                        type="checkbox"
+                        class="btn-check"
+                        id="dayWednesday"
+                        autocomplete="off"
+                    />
+                    <label
+                        class="btn btn-outline-primary rounded-pill"
+                        for="dayWednesday"
+                        >Wed</label
+                    >
+
+                    <input
+                        type="checkbox"
+                        class="btn-check"
+                        id="dayThursday"
+                        autocomplete="off"
+                    />
+                    <label
+                        class="btn btn-outline-primary rounded-pill"
+                        for="dayThursday"
+                        >Thu</label
+                    >
+
+                    <input
+                        type="checkbox"
+                        class="btn-check"
+                        id="dayFriday"
+                        autocomplete="off"
+                    />
+                    <label
+                        class="btn btn-outline-primary rounded-pill"
+                        for="dayFriday"
+                        >Fri</label
+                    >
+
+                    <input
+                        type="checkbox"
+                        class="btn-check"
+                        id="daySaturday"
+                        autocomplete="off"
+                    />
+                    <label
+                        class="btn btn-outline-primary rounded-pill"
+                        for="daySaturday"
+                        >Sat</label
+                    >
+
+                    <input
+                        type="checkbox"
+                        class="btn-check"
+                        id="daySunday"
+                        autocomplete="off"
+                    />
+                    <label
+                        class="btn btn-outline-primary rounded-pill"
+                        for="daySunday"
+                        >Sun</label
+                    >
+                </div>
+            </div>
+
+            <!-- Time Range Picker -->
+            <div class="mb-4">
+                <h5 class="fw-semibold mb-3">Schedule Blocking</h5>
+                <div class="input-group shadow-sm rounded-3">
+                    <span class="input-group-text">From</span>
+                    <input type="time" class="form-control" id="sessionStart" />
+                    <span class="input-group-text">To</span>
+                    <input type="time" class="form-control" id="sessionEnd" />
+                </div>
+                <button
+                    id="addSession"
+                    class="btn btn-primary w-100 mt-3 rounded-3"
+                >
+                    ➕ Add Session
+                </button>
+            </div>
+
+            <!-- Session List -->
+            <div id="sessionList" class="mb-4"></div>
+
+            <!-- Save Button -->
+            <button
+                id="saveButton"
+                class="btn btn-success w-100 py-2 rounded-3 shadow-sm"
+            >
+                💾 Save Settings
+            </button>
         </div>
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" value="Tuesday" id="dayTuesday" />
-          <label class="form-check-label" for="dayTuesday">Tuesday</label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" value="Wednesday" id="dayWednesday" />
-          <label class="form-check-label" for="dayWednesday">Wednesday</label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" value="Thursday" id="dayThursday" />
-          <label class="form-check-label" for="dayThursday">Thursday</label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" value="Friday" id="dayFriday" />
-          <label class="form-check-label" for="dayFriday">Friday</label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" value="Saturday" id="daySaturday" />
-          <label class="form-check-label" for="daySaturday">Saturday</label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" value="Sunday" id="daySunday" />
-          <label class="form-check-label" for="daySunday">Sunday</label>
-        </div>
-      </div>
-    </div>
 
-    <h3 class="mb-3">Schedule Blocking Sessions</h3>
-    <div class="time-inputs mb-2">
-      <input type="time" class="form-control" id="sessionStart" placeholder="Start Time" />
-      <input type="time" class="form-control" id="sessionEnd" placeholder="End Time" />
-    </div>
-
-    <button id="addSession" class="btn btn-primary">Add Session</button>
-  </div>
-
-  <div id="sessionList" class="mb-3"></div>
-
-  <button id="saveButton" class="btn btn-success w-100">Save Settings</button>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="quotes.js" type="module"></script>
-  <script src="common.js"></script>
-  <script src="popup.js" type="module"></script>
-</body>
-
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="quotes.js" type="module"></script>
+        <script src="common.js"></script>
+        <script src="./popup.js" type="module"></script>
+    </body>
 </html>
