@@ -1,5 +1,13 @@
 const isWithInSessionTime = (sessions) => {
   const parsedSessions = parseSessionsArray(sessions);
+
+  if (parsedSessions.length === 0) {
+    console.debug(
+      "no sessions found, no need to check if user is within session time",
+    );
+    return false;
+  }
+
   for (const session of parsedSessions) {
     const { hours: startSessionHour, minutes: startSessionMinute } =
       parseTimeString(session.start);
