@@ -105,12 +105,42 @@
                 </div>
             </div>
 
+            <!-- Neon Terminal Modal -->
+            <div id="terminalOverlay" class="terminal-overlay">
+                <div class="terminal-modal">
+                    <div class="terminal-header">
+                        <pre class="ascii-border">
+┌───────────────────────────────┐</pre
+                        >
+                        <h2 class="terminal-title">
+                            [ ACCESS OVERRIDE REQUIRED ]
+                        </h2>
+                        <pre class="ascii-border">
+└───────────────────────────────┘</pre
+                        >
+                    </div>
+
+                    <div class="terminal-body">
+                        <p id="terminalText"></p>
+                    </div>
+
+                    <div class="terminal-actions">
+                        <button id="terminalYes" class="btn cyan">
+                            Proceed
+                        </button>
+                        <button id="terminalNo" class="btn magenta">
+                            Abort
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Save Button -->
             <button id="saveButton" class="btn btn-large">
                 🚀 Save Settings
             </button>
         </div>
-        <script src="popup.js"></script>
+        <script type="module" src="popup.js"></script>
         <script src="theme.js"></script>
     </body>
 </html>

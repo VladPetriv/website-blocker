@@ -382,3 +382,103 @@ body {
         transform: scale(1);
     }
 }
+/* Overlay */
+.terminal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    z-index: 99999;
+    font-family: "Courier New", monospace;
+}
+
+/* Active state */
+.terminal-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Modal */
+.terminal-modal {
+    background: #000;
+    border: 2px solid #0ff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 460px;
+    max-width: 95%;
+    color: #0ff;
+    text-shadow:
+        0 0 6px #0ff,
+        0 0 12px #0ff;
+    animation: crt-flicker 2s infinite;
+    box-shadow:
+        0 0 18px #0ff,
+        0 0 32px #f0f;
+}
+
+/* Header */
+.terminal-title {
+    font-size: 18px;
+    margin: 5px 0;
+    text-align: center;
+    color: #f0f;
+    text-shadow:
+        0 0 6px #f0f,
+        0 0 12px #f0f;
+}
+.ascii-border {
+    color: #0ff;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+/* Body text */
+#terminalText {
+    margin: 20px 0;
+    font-size: 14px;
+    line-height: 1.4;
+    min-height: 50px;
+    white-space: pre-wrap;
+    color: #0ff;
+    text-shadow: 0 0 6px #0ff;
+}
+
+/* Buttons */
+.terminal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+.terminal-actions .btn {
+    background: black;
+    border: 2px solid;
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+.btn.cyan {
+    border-color: #0ff;
+    color: #0ff;
+    text-shadow: 0 0 6px #0ff;
+}
+.btn.cyan:hover {
+    background: #0ff;
+    color: black;
+}
+.btn.magenta {
+    border-color: #f0f;
+    color: #f0f;
+    text-shadow: 0 0 6px #f0f;
+}
+.btn.magenta:hover {
+    background: #f0f;
+    color: black;
+}
