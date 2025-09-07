@@ -1,3 +1,6 @@
+import { isWithInSessionTime } from "./common.js";
+import { getRandomDisciplineMessage } from "./messages.js";
+
 const SITES_STORAGE_KEY = "sites";
 const SESSIONS_STORAGE_KEY = "sessions";
 const DAY_SETTINGS_STORAGE_KEY = "daySettings";
@@ -173,12 +176,31 @@ function getSelectedDays() {
 }
 
 function saveSettings(storageResult) {
+  const shouldShowConfirmationPopup = isWithInSessionTime(
+    storageResult.initialSessions,
+  );
+
+  if (shouldShowConfirmationPopup) {
+    showConfirm(
+      () => {
+        updateApplicationSettings(storageResult);
+      },
+      () => alert("Great choice!"),
+    );
+
+    return;
+  }
+
+  updateApplicationSettings(storageResult);
+}
+
+function updateApplicationSettings(storageResult) {
   saveButton.classList.add("success");
   saveButton.textContent = "✅ Saved!";
   statusDot.style.backgroundColor = "#3b82f6";
   statusText.textContent = "FocusBlock active";
 
-  updateSettings(storageResult);
+  saveToStorage(storageResult);
 
   setTimeout(() => {
     saveButton.textContent = "🚀 Save Settings";
@@ -186,8 +208,7 @@ function saveSettings(storageResult) {
   }, 2000);
 }
 
-function updateSettings(storageResult) {
-  console.log(storageResult);
+function saveToStorage(storageResult) {
   const sites = storageResult.sites;
   const sessions = storageResult.sessions;
   const daySettings = storageResult.daySettings;
@@ -200,4 +221,92 @@ function updateSettings(storageResult) {
       daySettings,
     });
   });
+}
+
+function showConfirm(onYes, onNo) {
+  const overlay = document.getElementById("terminalOverlay");
+  const textEl = document.getElementById("terminalText");
+  const btnYes = document.getElementById("terminalYes");
+  const btnNo = document.getElementById("terminalNo");
+
+  const disciplineMessage = getRandomDisciplineMessage();
+
+  let step = 1;
+
+  const stepMessages = {
+    1: [
+      "> SYSTEM ALERT: Override request detected...",
+      "> User attempting to bypass block protocol.",
+      `> ${disciplineMessage}`,
+      "> Confirm override? (Proceed / Abort)",
+    ],
+    2: [
+      "> WARNING: You are about to break your focus session!",
+      "> This may reduce productivity and undo progress.",
+      "> Are you absolutely sure you want to continue? (Proceed / Abort)",
+    ],
+  };
+
+  function typeMessage(msgArray, callback) {
+    let i = 0,
+      line = 0;
+    textEl.textContent = "";
+    btnYes.style.display = "none";
+    btnNo.style.display = "none";
+
+    function typeLine() {
+      if (line < msgArray.length) {
+        if (i < msgArray[line].length) {
+          textEl.textContent += msgArray[line][i];
+          i++;
+          setTimeout(typeLine, 30);
+        } else {
+          textEl.textContent += "\n";
+          i = 0;
+          line++;
+          setTimeout(typeLine, 400);
+        }
+      } else {
+        btnYes.style.display = "block";
+        btnNo.style.display = "block";
+        if (callback) callback();
+      }
+    }
+
+    typeLine();
+  }
+
+  overlay.classList.add("active");
+  typeMessage(stepMessages[step]);
+
+  btnYes.onclick = () => {
+    if (step === 1) {
+      // Step 1 confirmed → move to step 2
+      step = 2;
+      typeMessage(stepMessages[step]);
+      // Optional: warn user they cannot leave page
+      window.addEventListener("beforeunload", preventLeaving);
+    } else {
+      // Step 2 confirmed → final action
+      overlay.classList.remove("active");
+      btnYes.style.display = "block";
+      btnNo.style.display = "block";
+      window.removeEventListener("beforeunload", preventLeaving);
+      if (onYes) onYes();
+    }
+  };
+
+  btnNo.onclick = () => {
+    overlay.classList.remove("active");
+    btnYes.style.display = "block";
+    btnNo.style.display = "block";
+    window.removeEventListener("beforeunload", preventLeaving);
+    if (onNo) onNo();
+  };
+
+  function preventLeaving(e) {
+    e.preventDefault();
+    e.returnValue =
+      "You have an active focus session. Are you sure you want to leave?";
+  }
 }

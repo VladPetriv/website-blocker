@@ -4,13 +4,13 @@ const SITES_STORAGE_KEY = "sites";
 const SESSIONS_STORAGE_KEY = "sessions";
 const DAY_SETTINGS_STORAGE_KEY = "daySettings";
 const dayMap = new Map([
+  ["sun", 0],
   ["mon", 1],
   ["tue", 2],
   ["wed", 3],
   ["thu", 4],
   ["fri", 5],
   ["sat", 6],
-  ["sun", 7],
 ]);
 
 let sites = [];
@@ -57,16 +57,19 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
   }
   if (!hasEnabledAnyDay) {
+    console.debug("no enabled day found");
     return;
   }
 
   const url = new URL(tab.url);
+  const currentHost = normalizeHost(url.hostname);
 
   let isFromBlockedSite;
   for (const blockedSite of sites) {
-    if (url.hostname.includes(blockedSite)) {
+    const target = normalizeHost(blockedSite);
+    if (currentHost === target) {
       console.debug(
-        `url:${url.hostname}, blocked site: ${blockedSite}, includes: ${url.hostname.includes(blockedSite)}`,
+        `url:${url.hostname}, blocked site: ${blockedSite}, equals: ${currentHost === target}`,
       );
       isFromBlockedSite = true;
       break;
@@ -82,3 +85,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     ? chrome.tabs.update(tabId, { url: "https://google.com" })
     : null;
 });
+
+function normalizeHost(host) {
+  return host.startsWith("www.") ? host.slice(4) : host;
+}
